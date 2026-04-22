@@ -16,8 +16,9 @@ def get_whale_activity(coin_id: str) -> dict:
     """Get large transactions in the last 24h."""
     api_key = os.getenv('ETHERSCAN_API_KEY')
 
-    url = 'https://api.etherscan.io/api'
+    url = 'https://api.etherscan.io/v2/api'
     params = {
+        'chainid': 1,
         'module': 'account',
         'action': 'txlist',
         'address': KNOWN_EXCHANGES['binance'],
@@ -64,8 +65,9 @@ def get_stablecoin_flow() -> dict:
     """Check stablecoin supply as buying power indicator."""
     api_key = os.getenv('ETHERSCAN_API_KEY')
 
-    url = 'https://api.etherscan.io/api'
+    url = 'https://api.etherscan.io/v2/api'
     params = {
+        'chainid': 1,
         'module': 'stats',
         'action': 'tokensupply',
         'contractaddress': STABLECOIN_CONTRACTS['USDT'],
