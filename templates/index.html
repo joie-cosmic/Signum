@@ -2,9 +2,95 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signum</title>
 </head>
 <body>
+
+    <h1>Signum</h1>
+
+    <!-- 搜索框 -->
+    <input type="text" id="coinInput" placeholder="Search coin (e.g. ethereum, bitcoin)">
+    <button onclick="analyze()">Analyze</button>
+
+    <!-- K线图 -->
+    <div id="chart-container">
+        <div class="tradingview-widget-container">
+            <div id="tradingview_chart"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+            <script type="text/javascript">
+            new TradingView.widget({
+                "width": "100%",
+                "height": 400,
+                "symbol": "BINANCE:ETHUSD",
+                "interval": "D",
+                "timezone": "Etc/UTC",
+                "theme": "dark",
+                "style": "1",
+                "locale": "en",
+                "toolbar_bg": "#f1f3f6",
+                "enable_publishing": false,
+                "hide_top_toolbar": false,
+                "container_id": "tradingview_chart"
+            });
+            </script>
+        </div>
+    </div>
+
+    <!-- 结果区域 -->
+    <div id="results" style="display:none">
+        <div id="signal-box"></div>
+        <div id="onchain-box"></div>
+        <div id="news-box"></div>
+    </div>
+
+    <script>
+        async function analyze() {
+            const coin = document.getElementById('coinInput').value || 'ethereum';
+            document.getElementById('results').style.display = 'none';
+
+            const response = await fetch(`/api/analyze?coin=${coin}`);
+            const data = await response.json();
+
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            // 信号区
+            document.getElementById('signal-box').innerHTML = `
+                <h2>${data.price.name} (${data.price.symbol})</h2>
+                <h3>$${data.price.price.toLocaleString()}</h3>
+                <p>${data.price.change_24h > 0 ? '▲' : '▼'} ${data.price.change_24h.toFixed(2)}%</p>
+                <h2>Signal: ${data.signal.signal}</h2>
+                <p>${data.signal.reasoning}</p>
+            `;
+
+            // 链上数据区
+            document.getElementById('onchain-box').innerHTML = `
+                <h3>Onchain Data</h3>
+                <p>🐋 Whale Activity: ${data.onchain.whale.large_txns} large transactions</p>
+                <p>💰 Exchange Flow: ${data.onchain.exchange_flow.description}</p>
+                <p>📊 USDT Supply: $${data.onchain.stablecoin.usdt_supply_billions}B (${data.onchain.stablecoin.signal})</p>
+                <p>${data.signal.onchain_summary}</p>
+            `;
+
+            // 新闻区
+            let newsHTML = '<h3>Latest News</h3>';
+            data.news.forEach(n => {
+                newsHTML += `
+                    <div>
+                        <span>${n.weight === 'high' ? '🔴' : n.weight === 'medium' ? '🟡' : '🟢'}</span>
+                        <a href="${n.url}" target="_blank">${n.title}</a>
+                        <p>${n.description}</p>
+                    </div>
+                `;
+            });
+            document.getElementById('news-box').innerHTML = newsHTML;
+
+            document.getElementById('results').style.display = 'block';
+        }
+    </script>
 
 </body>
 </html>
