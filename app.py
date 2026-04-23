@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, request
 from dotenv import load_dotenv
 import os
+import concurrent.futures
 
 from services.price import get_coin_data, search_coin
 from services.news import get_news
@@ -11,11 +12,9 @@ load_dotenv()
 
 app = Flask(__name__)
 
-
 @app.route('/')
 def index():
     return render_template('index.html')
-
 
 @app.route('/api/analyze', methods=['GET'])
 def analyze_coin():
@@ -26,15 +25,22 @@ def analyze_coin():
     if not coin_id:
         return jsonify({'error': f'Coin "{query}" not found'}), 404
 
-    # 拿所有数据
+    # 先拿币价（其他API需要symbol）
     price_data = get_coin_data(coin_id)
     if not price_data:
         return jsonify({'error': 'Failed to fetch price data'}), 500
 
-    news_list = get_news(price_data['symbol'])
-    whale_data = get_whale_activity(coin_id)
-    exchange_flow = get_exchange_flow()
-    stablecoin_data = get_stablecoin_flow()
+    # 并行调用剩余三个API
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future_news = executor.submit(get_news, price_data['symbol'])
+        future_whale = executor.submit(get_whale_activity, coin_id)
+        future_exchange = executor.submit(get_exchange_flow)
+        future_stablecoin = executor.submit(get_stablecoin_flow)
+
+        news_list = future_news.result()
+        whale_data = future_whale.result()
+        exchange_flow = future_exchange.result()
+        stablecoin_data = future_stablecoin.result()
 
     # AI分析
     ai_result = analyze(
@@ -57,7 +63,6 @@ def analyze_coin():
         },
         'signal': ai_result
     })
-
 
 if __name__ == '__main__':
     app.run(debug=True)
