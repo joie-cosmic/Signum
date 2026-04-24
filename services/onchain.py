@@ -16,6 +16,15 @@ BNB_EXCHANGES = {
     'binance': '0x8894E0a0c962CB723c1976a4421c95949bE2D4E3',
 }
 
+SOL_EXCHANGES = {
+    'binance': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+}
+
+XRP_EXCHANGES = {
+    'binance': 'rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh',
+    'kraken': 'rLHzPsX6oXkzU2qL12kHCH8G8cnZv1rBJh',
+}
+
 CHAIN_MAP = {
     'ethereum': 'eth',
     'bitcoin': 'btc',
@@ -25,7 +34,6 @@ CHAIN_MAP = {
 }
 
 def get_eth_whale_activity() -> dict:
-    """Get large ETH transactions from Etherscan V2."""
     api_key = os.getenv('ETHERSCAN_API_KEY')
     url = 'https://api.etherscan.io/v2/api'
     params = {
@@ -59,7 +67,6 @@ def get_eth_whale_activity() -> dict:
     return {'net_flow': round(net_flow, 2), 'signal': signal, 'large_txns': large_txns}
 
 def get_bnb_whale_activity() -> dict:
-    """Get large BNB transactions from Etherscan V2 BSC."""
     api_key = os.getenv('ETHERSCAN_API_KEY')
     url = 'https://api.etherscan.io/v2/api'
     params = {
@@ -93,7 +100,6 @@ def get_bnb_whale_activity() -> dict:
     return {'net_flow': round(net_flow, 2), 'signal': signal, 'large_txns': large_txns}
 
 def get_btc_whale_activity() -> dict:
-    """Get large BTC transactions from mempool.space."""
     try:
         url = 'https://mempool.space/api/mempool/recent'
         response = requests.get(url, timeout=10)
@@ -108,54 +114,77 @@ def get_btc_whale_activity() -> dict:
                 net_flow += value_btc
 
         signal = 'bullish' if large_txns > 5 else 'neutral'
-        return {
-            'net_flow': round(net_flow, 2),
-            'signal': signal,
-            'large_txns': large_txns
-        }
+        return {'net_flow': round(net_flow, 2), 'signal': signal, 'large_txns': large_txns}
     except:
         return {'net_flow': 0, 'signal': 'neutral', 'large_txns': 0}
 
 def get_sol_whale_activity() -> dict:
-    """Get large SOL transactions from Solana RPC."""
     try:
         url = 'https://api.mainnet-beta.solana.com'
+
+        # 拿Binance SOL钱包最近交易
         payload = {
             'jsonrpc': '2.0',
             'id': 1,
-            'method': 'getRecentBlockhash',
-            'params': []
+            'method': 'getSignaturesForAddress',
+            'params': [SOL_EXCHANGES['binance'], {'limit': 20}]
         }
         response = requests.post(url, json=payload, timeout=10)
-        data = response.json()
+        sigs = response.json().get('result', [])
 
-        if data.get('result'):
-            return {'net_flow': 0, 'signal': 'neutral', 'large_txns': 0, 'note': 'SOL chain active'}
-        return {'net_flow': 0, 'signal': 'neutral', 'large_txns': 0}
+        large_txns = len(sigs)
+        signal = 'bullish' if large_txns > 10 else 'neutral'
+
+        return {
+            'net_flow': 0,
+            'signal': signal,
+            'large_txns': large_txns,
+            'note': f'{large_txns} recent transactions on Binance SOL wallet'
+        }
     except:
         return {'net_flow': 0, 'signal': 'neutral', 'large_txns': 0}
 
 def get_xrp_whale_activity() -> dict:
-    """Get large XRP transactions from XRPL."""
     try:
         url = 'https://xrplcluster.com'
+
+        # 拿Binance XRP账户最近交易
         payload = {
-            'method': 'server_info',
-            'params': [{}]
+            'method': 'account_tx',
+            'params': [{
+                'account': XRP_EXCHANGES['binance'],
+                'limit': 20,
+                'ledger_index_min': -1,
+                'ledger_index_max': -1
+            }]
         }
         response = requests.post(url, json=payload, timeout=10)
         data = response.json()
 
-        if data.get('result'):
-            return {'net_flow': 0, 'signal': 'neutral', 'large_txns': 0, 'note': 'XRP chain active'}
-        return {'net_flow': 0, 'signal': 'neutral', 'large_txns': 0}
+        txns = data.get('result', {}).get('transactions', [])
+        large_txns = 0
+        net_flow = 0
+
+        for tx in txns:
+            tx_data = tx.get('tx', {})
+            if tx_data.get('TransactionType') == 'Payment':
+                amount = tx_data.get('Amount', 0)
+                if isinstance(amount, str):
+                    xrp_amount = int(amount) / 1e6
+                    if xrp_amount > 10000:
+                        large_txns += 1
+                        if tx_data.get('Destination') == XRP_EXCHANGES['binance']:
+                            net_flow += xrp_amount
+                        else:
+                            net_flow -= xrp_amount
+
+        signal = 'bearish' if net_flow > 100000 else 'bullish' if net_flow < -100000 else 'neutral'
+        return {'net_flow': round(net_flow, 2), 'signal': signal, 'large_txns': large_txns}
     except:
         return {'net_flow': 0, 'signal': 'neutral', 'large_txns': 0}
 
 def get_whale_activity(coin_id: str) -> dict:
-    """Route to correct chain based on coin_id."""
     chain = CHAIN_MAP.get(coin_id, 'eth')
-
     if chain == 'btc':
         return get_btc_whale_activity()
     elif chain == 'bnb':
@@ -168,7 +197,6 @@ def get_whale_activity(coin_id: str) -> dict:
         return get_eth_whale_activity()
 
 def get_stablecoin_flow() -> dict:
-    """Check stablecoin supply as buying power indicator."""
     api_key = os.getenv('ETHERSCAN_API_KEY')
     url = 'https://api.etherscan.io/v2/api'
     params = {
@@ -186,14 +214,9 @@ def get_stablecoin_flow() -> dict:
 
     supply = int(data.get('result', 0)) / 1e6
     signal = 'bullish' if supply > 80_000_000_000 else 'bearish' if supply < 50_000_000_000 else 'neutral'
-
-    return {
-        'usdt_supply_billions': round(supply / 1e9, 2),
-        'signal': signal
-    }
+    return {'usdt_supply_billions': round(supply / 1e9, 2), 'signal': signal}
 
 def get_exchange_flow(coin_id: str = 'ethereum') -> dict:
-    """Get net flow into/out of exchanges for given coin."""
     whale = get_whale_activity(coin_id)
 
     if whale['net_flow'] > 0:

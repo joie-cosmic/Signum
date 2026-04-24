@@ -32,17 +32,20 @@
     </div>
 
     <script>
+        const symbolMap = {
+            'bitcoin': 'BINANCE%3ABTCUSDT',
+            'ethereum': 'BINANCE%3AETHUSDT',
+            'solana': 'BINANCE%3ASOLUSDT',
+            'bnb': 'BINANCE%3ABNBUSDT',
+            'binancecoin': 'BINANCE%3ABNBUSDT',
+            'xrp': 'BINANCE%3AXRPUSDT',
+            'ripple': 'BINANCE%3AXRPUSDT',
+        }
+
         async function analyze() {
             const coin = document.getElementById('coinInput').value || 'ethereum';
 
             // 更新K线图
-            const symbolMap = {
-                'bitcoin': 'BINANCE%3ABTCUSDT',
-                'ethereum': 'BINANCE%3AETHUSDT',
-                'solana': 'BINANCE%3ASOLUSDT',
-                'bnb': 'BINANCE%3ABNBUSDT',
-                'xrp': 'BINANCE%3AXRPUSDT',
-            }
             const symbol = symbolMap[coin.toLowerCase()] || `BINANCE%3A${coin.toUpperCase()}USDT`;
             document.getElementById('tv-chart').src =
                 `https://s.tradingview.com/widgetembed/?symbol=${symbol}&interval=D&theme=dark&style=1&locale=en`;
@@ -78,11 +81,12 @@
             // 新闻区
             let newsHTML = '<h3>Latest News</h3>';
             data.news.forEach(n => {
+                const shortDesc = n.description ? n.description.substring(0, 150) + '...' : '';
                 newsHTML += `
-                    <div>
+                    <div style="margin-bottom:16px;">
                         <span>${n.weight === 'high' ? '🔴' : n.weight === 'medium' ? '🟡' : '🟢'}</span>
-                        <a href="${n.url}" target="_blank">${n.title}</a>
-                        <p>${n.description}</p>
+                        <a href="${n.url}" target="_blank"><strong>${n.title}</strong></a>
+                        <p style="margin-top:4px;">${shortDesc} <a href="${n.url}" target="_blank">Read more →</a></p>
                     </div>
                 `;
             });
