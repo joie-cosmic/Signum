@@ -34,7 +34,7 @@ def analyze_coin():
     with concurrent.futures.ThreadPoolExecutor() as executor:
         future_news = executor.submit(get_news, price_data['symbol'])
         future_whale = executor.submit(get_whale_activity, coin_id)
-        future_exchange = executor.submit(get_exchange_flow)
+        future_exchange = executor.submit(get_exchange_flow, coin_id)
         future_stablecoin = executor.submit(get_stablecoin_flow)
 
         news_list = future_news.result()
