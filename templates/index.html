@@ -3,109 +3,967 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signum</title>
+    <title>Signum — Onchain Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-1: #040d1f;
+            --bg-2: #071428;
+            --bg-3: #0a1e3a;
+            --blue: #2563eb;
+            --blue-bright: #3b82f6;
+            --blue-glow: rgba(59,130,246,0.25);
+            --cyan: #06b6d4;
+            --text: #cdd9f0;
+            --text-bright: #e8f0ff;
+            --text-dim: rgba(180,200,240,0.4);
+            --border: rgba(59,130,246,0.15);
+            --border-bright: rgba(59,130,246,0.35);
+            --bull: #10b981;
+            --bear: #ef4444;
+            --neutral: #94a3b8;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: linear-gradient(180deg, #5a8ab0 0%, #3a6080 25%, #0e1e30 45%, #000000 60%, #000000 100%);
+            background-attachment: fixed;
+
+            color: var(--text);
+            font-family: 'Barlow', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        #particle-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* NAV */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 48px;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .logo {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.25em;
+            color: #ffffff;
+            text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+        }
+
+        .logo span { color: #00d4ff; text-shadow: 0 0 12px rgba(0,212,255,0.6); }
+
+        .nav-right {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* HOME */
+        #home-page {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 40px 80px;
+            background: radial-gradient(ellipse 90% 50% at 50% 5%, rgba(74,106,138,0.35) 0%, transparent 60%);
+        }
+
+        .eyebrow {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.3em;
+            color: var(--cyan);
+            margin-bottom: 24px;
+            opacity: 0;
+            animation: riseUp 0.7s ease 0.2s forwards;
+        }
+
+        .hero-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: clamp(40px, 6.5vw, 78px);
+            font-weight: 700;
+            line-height: 1.1;
+            text-align: center;
+            max-width: 860px;
+            color: var(--text-bright);
+            margin-bottom: 18px;
+            opacity: 0;
+            animation: riseUp 0.7s ease 0.4s forwards;
+            letter-spacing: 0.02em;
+        }
+
+        .hero-title .hl {
+            color: #ffffff;
+            font-style: italic;
+            cursor: pointer;
+            display: inline-block;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .hero-title .hl:hover {
+            color: #ffe066;
+            text-shadow: 0 0 40px rgba(255,220,80,0.8), 0 0 80px rgba(255,200,50,0.4);
+            transform: scale(1.04) skewX(-2deg);
+        }
+
+        .hero-sub {
+            font-size: 15px;
+            font-weight: 300;
+            color: var(--text-dim);
+            text-align: center;
+            max-width: 500px;
+            line-height: 1.9;
+            margin-bottom: 52px;
+            opacity: 0;
+            animation: riseUp 0.7s ease 0.6s forwards;
+            letter-spacing: 0.02em;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            max-width: 580px;
+            margin-bottom: 56px;
+            opacity: 0;
+            animation: riseUp 0.7s ease 0.8s forwards;
+        }
+
+        .search-input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1.5px solid rgba(100,160,255,0.55);
+            border-radius: 8px;
+            padding: 13px 20px;
+            color: var(--text-bright);
+            font-size: 14px;
+            font-family: 'Barlow', sans-serif;
+            font-weight: 400;
+            outline: none;
+            transition: all 0.25s;
+            letter-spacing: 0.02em;
+        }
+
+        .search-input::placeholder { color: var(--text-dim); }
+
+        .search-input:focus {
+            border-color: var(--blue-bright);
+            background: rgba(37,99,235,0.09);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2), 0 0 16px rgba(59,130,246,0.15);
+        }
+
+        .btn-analyze {
+            background: var(--blue);
+            border: none;
+            border-radius: 8px;
+            padding: 13px 32px;
+            color: #fff;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-analyze:hover {
+            background: var(--blue-bright);
+            transform: scale(1.04);
+            box-shadow: 0 0 24px rgba(59,130,246,0.5);
+        }
+
+        .btn-analyze:active { transform: scale(0.96); }
+
+        /* HOT COINS */
+        .hot-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 14px;
+            width: 100%;
+            max-width: 780px;
+            opacity: 0;
+            animation: riseUp 0.7s ease 1s forwards;
+        }
+
+        .coin-card {
+            background: rgba(255,255,255,0.02);
+            border: 1.5px solid rgba(74,130,246,0.45);
+            border-radius: 12px;
+            padding: 22px;
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .coin-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(37,99,235,0.1), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .coin-card:hover {
+            border-color: var(--border-bright);
+            transform: translateY(-5px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(59,130,246,0.15);
+        }
+
+        .coin-card:hover::after { opacity: 1; }
+
+        .cc-name {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+
+        .cc-price {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-bright);
+            margin-bottom: 4px;
+        }
+
+        .cc-change {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        .cc-change.up { color: var(--bull); }
+        .cc-change.down { color: var(--bear); }
+
+        .cc-explore {
+            margin-top: 16px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            color: var(--blue-bright);
+            opacity: 0.7;
+        }
+
+        /* LOADING */
+        #loading-page {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: linear-gradient(155deg, #0a1e3a 0%, #040d1f 100%);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .inf-wrap { width: 260px; height: 130px; }
+        .inf-wrap svg { width: 100%; height: 100%; }
+        .inf-track { fill: none; stroke: rgba(59,130,246,0.15); stroke-width: 1.5; }
+        .inf-dot { fill: var(--blue-bright); filter: drop-shadow(0 0 8px var(--blue-bright)); }
+
+        .loading-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            letter-spacing: 0.35em;
+            color: var(--text-dim);
+        }
+
+        .prog-wrap { display: flex; align-items: center; gap: 14px; width: 300px; }
+
+        .prog-bar {
+            flex: 1;
+            height: 2px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .prog-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--blue), var(--cyan));
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--blue-bright);
+        }
+
+        .prog-pct {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dim);
+            min-width: 36px;
+        }
+
+        /* ANALYSIS PAGE */
+        #analysis-page {
+            display: none;
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            padding: 100px 48px 80px;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .a-header {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+
+        .a-name {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 46px;
+            font-weight: 700;
+            color: var(--text-bright);
+            letter-spacing: 0.03em;
+        }
+
+        .a-sym {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            color: var(--blue-bright);
+            background: rgba(37,99,235,0.12);
+            border: 1px solid rgba(59,130,246,0.25);
+            padding: 4px 12px;
+            border-radius: 4px;
+        }
+
+        .a-price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .a-price {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 38px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .a-price.up { color: var(--bull); }
+        .a-price.down { color: var(--bear); }
+        .a-price.neutral { color: var(--text-bright); }
+
+        .a-badge {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            padding: 4px 12px;
+            border-radius: 4px;
+        }
+
+        .a-badge.up { color: var(--bull); background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); }
+        .a-badge.down { color: var(--bear); background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); }
+
+        .chart-box {
+            border: 1.5px solid rgba(74,130,246,0.45);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.3);
+        }
+
+        /* SIGNAL BLOCK */
+        .sig-block {
+            border: 1.5px solid rgba(74,130,246,0.45);
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.02);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sig-block::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+        }
+
+        .sig-block.bullish { background: rgba(16,185,129,0.04); border-color: rgba(16,185,129,0.2); }
+        .sig-block.bullish::before { background: linear-gradient(90deg, transparent, var(--bull), transparent); }
+        .sig-block.bearish { background: rgba(239,68,68,0.04); border-color: rgba(239,68,68,0.2); }
+        .sig-block.bearish::before { background: linear-gradient(90deg, transparent, var(--bear), transparent); }
+        .sig-block.neutral::before { background: linear-gradient(90deg, transparent, var(--neutral), transparent); }
+
+        .sig-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .sig-label {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+        }
+
+        .sig-label.bullish { color: var(--bull); }
+        .sig-label.bearish { color: var(--bear); }
+        .sig-label.neutral { color: var(--neutral); }
+
+        .conf-pill {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.18em;
+            color: var(--text-dim);
+            border: 1.5px solid rgba(74,130,246,0.45);
+            padding: 5px 14px;
+            border-radius: 20px;
+        }
+
+        .sig-text {
+            font-size: 14px;
+            font-weight: 300;
+            line-height: 1.85;
+            color: rgba(200,215,240,0.65);
+            letter-spacing: 0.01em;
+        }
+
+        /* THREE COLS */
+        .three-cols {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 12px;
+        }
+
+        .col-card {
+            border: 1.5px solid rgba(74,130,246,0.45);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.02);
+            overflow: hidden;
+        }
+
+        .col-head {
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .col-head:hover { background: rgba(255,255,255,0.03); }
+
+        .col-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            color: var(--text-dim);
+        }
+
+        .col-arr {
+            font-size: 9px;
+            color: var(--text-dim);
+            transition: transform 0.3s;
+        }
+
+        .col-arr.open { transform: rotate(180deg); }
+
+        .col-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        .col-body.open { max-height: 700px; }
+        .col-inner { padding: 14px 18px; }
+
+        /* metrics */
+        .met-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 13px;
+        }
+
+        .met-row:last-of-type { border: none; }
+        .met-l { color: var(--text-dim); font-weight: 300; }
+        .met-v { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 600; }
+        .met-v.up { color: var(--bull); }
+        .met-v.down { color: var(--bear); }
+        .met-v.neu { color: var(--text-bright); }
+
+        .bt-summary {
+            margin-top: 10px;
+            font-size: 12px;
+            font-weight: 300;
+            color: var(--text-dim);
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        /* onchain */
+        .oc-row {
+            display: flex;
+            gap: 10px;
+            padding: 9px 6px;
+            border-radius: 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 12px;
+            transition: background 0.2s;
+            cursor: default;
+        }
+
+        .oc-row:hover { background: rgba(255,255,255,0.03); }
+        .oc-row:last-of-type { border: none; }
+        .oc-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+        .oc-text { color: rgba(180,200,240,0.65); line-height: 1.6; font-weight: 300; }
+        .oc-ai { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 11px; font-weight: 300; color: var(--text-dim); line-height: 1.7; font-style: italic; }
+
+        /* news */
+        .nw-item {
+            display: flex;
+            gap: 10px;
+            padding: 9px 6px;
+            border-radius: 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.2s;
+        }
+
+        .nw-item:hover { background: rgba(255,255,255,0.03); }
+        .nw-item:last-child { border: none; }
+
+        .nw-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+
+        .nw-dot.high { background: var(--bear); box-shadow: 0 0 6px var(--bear); }
+        .nw-dot.medium { background: #f59e0b; box-shadow: 0 0 6px #f59e0b; }
+        .nw-dot.low { background: rgba(255,255,255,0.18); }
+
+        .nw-link {
+            font-size: 12px;
+            font-weight: 400;
+            color: rgba(200,215,240,0.75);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 4px;
+            line-height: 1.5;
+            transition: color 0.2s;
+        }
+
+        .nw-link:hover { color: var(--blue-bright); }
+
+        .nw-desc {
+            font-size: 11px;
+            font-weight: 300;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .nw-more {
+            color: var(--blue-bright);
+            text-decoration: none;
+            font-size: 11px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .nw-more:hover { opacity: 1; }
+
+        /* ANIMATIONS */
+        @keyframes riseUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .fade-in { animation: fadeIn 0.5s ease forwards; }
+    </style>
 </head>
 <body>
 
-    <h1>Signum</h1>
+<canvas id="particle-canvas"></canvas>
 
-    <!-- 搜索框 -->
-    <input type="text" id="coinInput" placeholder="Search coin (e.g. ethereum, bitcoin)">
-    <button onclick="analyze()">Analyze</button>
+<nav>
+    <div class="logo">SIG<span>NUM</span></div>
+    <div class="nav-right">ONCHAIN INTELLIGENCE</div>
+</nav>
 
-    <!-- K线图 -->
-    <div id="chart-container">
-        <div class="tradingview-widget-container" style="height:400px">
-            <iframe
-                id="tv-chart"
-                src="https://s.tradingview.com/widgetembed/?symbol=BINANCE%3AETHUSD&interval=D&theme=dark&style=1&locale=en"
-                style="width:100%;height:400px;border:none;"
-            ></iframe>
+<!-- HOME -->
+<div id="home-page">
+    <div class="eyebrow">POWERED BY REAL ONCHAIN DATA</div>
+    <h1 class="hero-title">The market moves <span class="hl">BEFORE</span><br>the news breaks.</h1>
+    <p class="hero-sub">Signum reads whale wallets, exchange flows, and stablecoin movements — then tells you exactly what it means.</p>
+    <div class="search-row">
+        <input class="search-input" id="coinInput" type="text" placeholder="Search any coin — ethereum, bitcoin, solana...">
+        <button class="btn-analyze" onclick="startAnalysis()">ANALYZE</button>
+    </div>
+    <div class="hot-grid">
+        <div class="coin-card" onclick="quickAnalyze('ethereum')">
+            <div class="cc-name">ETH — ETHEREUM</div>
+            <div class="cc-price" id="eth-price">—</div>
+            <div class="cc-change" id="eth-change">—</div>
+            <div class="cc-explore">EXPLORE SIGNAL →</div>
+        </div>
+        <div class="coin-card" onclick="quickAnalyze('bitcoin')">
+            <div class="cc-name">BTC — BITCOIN</div>
+            <div class="cc-price" id="btc-price">—</div>
+            <div class="cc-change" id="btc-change">—</div>
+            <div class="cc-explore">EXPLORE SIGNAL →</div>
+        </div>
+        <div class="coin-card" onclick="quickAnalyze('solana')">
+            <div class="cc-name">SOL — SOLANA</div>
+            <div class="cc-price" id="sol-price">—</div>
+            <div class="cc-change" id="sol-change">—</div>
+            <div class="cc-explore">EXPLORE SIGNAL →</div>
         </div>
     </div>
+</div>
 
-    <!-- 结果区域 -->
-    <div id="results" style="display:none">
-        <div id="signal-box"></div>
-        <div id="backtest-box"></div>
-        <div id="onchain-box"></div>
-        <div id="news-box"></div>
+<!-- LOADING -->
+<div id="loading-page">
+    <div class="loading-label" id="loading-text">ANALYZING ONCHAIN DATA</div>
+    <div class="inf-wrap">
+        <svg viewBox="0 0 260 130" id="inf-svg">
+            <path class="inf-track" d="M130,65 C130,65 170,15 210,15 C238,15 260,38 260,65 C260,92 238,115 210,115 C170,115 130,65 130,65 C130,65 90,15 50,15 C22,15 0,38 0,65 C0,92 22,115 50,115 C90,115 130,65 130,65" id="inf-path"/>
+            <circle class="inf-dot" r="6" id="inf-dot"/>
+        </svg>
+    </div>
+    <div class="prog-wrap">
+        <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+        <div class="prog-pct" id="prog-pct">0%</div>
+    </div>
+</div>
+
+<!-- ANALYSIS -->
+<div id="analysis-page">
+    <div class="a-header">
+        <div class="a-name" id="a-name">—</div>
+        <div class="a-sym" id="a-sym">—</div>
+    </div>
+    <div class="a-price-row">
+        <div class="a-price" id="a-price">—</div>
+        <div class="a-badge" id="a-change">—</div>
     </div>
 
-    <script>
-        const symbolMap = {
-            'bitcoin': 'BINANCE%3ABTCUSDT',
-            'ethereum': 'BINANCE%3AETHUSDT',
-            'solana': 'BINANCE%3ASOLUSDT',
-            'bnb': 'BINANCE%3ABNBUSDT',
-            'binancecoin': 'BINANCE%3ABNBUSDT',
-            'xrp': 'BINANCE%3AXRPUSDT',
-            'ripple': 'BINANCE%3AXRPUSDT',
-        }
+    <div class="chart-box">
+        <iframe id="tv-chart"
+            src="https://s.tradingview.com/widgetembed/?symbol=BINANCE%3AETHUSD&interval=D&theme=dark&style=1&locale=en"
+            style="width:100%;height:380px;border:none;"></iframe>
+    </div>
 
-        async function analyze() {
-            const coin = document.getElementById('coinInput').value || 'ethereum';
+    <div class="sig-block" id="sig-block">
+        <div class="sig-row">
+            <div class="sig-label" id="a-signal">—</div>
+            <div class="conf-pill" id="a-conf">—</div>
+        </div>
+        <div class="sig-text" id="a-reasoning">—</div>
+    </div>
 
-            // 更新K线图
-            const symbol = symbolMap[coin.toLowerCase()] || `BINANCE%3A${coin.toUpperCase()}USDT`;
-            document.getElementById('tv-chart').src =
-                `https://s.tradingview.com/widgetembed/?symbol=${symbol}&interval=D&theme=dark&style=1&locale=en`;
+    <div class="three-cols">
+        <div class="col-card">
+            <div class="col-head" onclick="toggleCol('bt')">
+                <div class="col-title">HISTORICAL CONTEXT</div>
+                <div class="col-arr" id="bt-arr">▼</div>
+            </div>
+            <div class="col-body" id="bt-body">
+                <div class="col-inner">
+                    <div class="met-row"><span class="met-l">30-day win rate</span><span class="met-v neu" id="bt-wr">—</span></div>
+                    <div class="met-row"><span class="met-l">Avg gain</span><span class="met-v up" id="bt-gain">—</span></div>
+                    <div class="met-row"><span class="met-l">Avg loss</span><span class="met-v down" id="bt-loss">—</span></div>
+                    <div class="bt-summary" id="bt-sum">—</div>
+                </div>
+            </div>
+        </div>
 
-            document.getElementById('results').style.display = 'none';
+        <div class="col-card">
+            <div class="col-head" onclick="toggleCol('oc')">
+                <div class="col-title">ONCHAIN DATA</div>
+                <div class="col-arr" id="oc-arr">▼</div>
+            </div>
+            <div class="col-body" id="oc-body">
+                <div class="col-inner">
+                    <div class="oc-row"><span class="oc-icon">🐋</span><span class="oc-text" id="oc-whale">—</span></div>
+                    <div class="oc-row"><span class="oc-icon">💰</span><span class="oc-text" id="oc-flow">—</span></div>
+                    <div class="oc-row"><span class="oc-icon">📊</span><span class="oc-text" id="oc-usdt">—</span></div>
+                    <div class="oc-ai" id="oc-ai">—</div>
+                </div>
+            </div>
+        </div>
 
-            const response = await fetch(`/api/analyze?coin=${coin}`);
-            const data = await response.json();
+        <div class="col-card">
+            <div class="col-head" onclick="toggleCol('nw')">
+                <div class="col-title">LATEST NEWS</div>
+                <div class="col-arr" id="nw-arr">▼</div>
+            </div>
+            <div class="col-body" id="nw-body">
+                <div class="col-inner" id="nw-inner">—</div>
+            </div>
+        </div>
+    </div>
+</div>
 
-            if (data.error) {
-                alert(data.error);
-                return;
+<script>
+// PARTICLES
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, pts = [], mouse = {x:-9999,y:-9999};
+
+function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+
+function initPts(){
+    pts=[];
+    const n=Math.floor(W*H/16000);
+    for(let i=0;i<n;i++) pts.push({
+        x:Math.random()*W, y:Math.random()*H,
+        r:Math.random()*1.1+0.3,
+        vx:(Math.random()-.5)*.12,
+        vy:(Math.random()-.5)*.12,
+        a:Math.random()*.4+0.1
+    });
+}
+
+function draw(){
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p=>{
+        const dx=p.x-mouse.x, dy=p.y-mouse.y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        const inf=Math.max(0,1-d/160);
+        p.x+=p.vx+(dx/(d||1))*inf*.25;
+        p.y+=p.vy+(dy/(d||1))*inf*.25;
+        if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+        if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=`rgba(59,130,246,${p.a+inf*.3})`;
+        ctx.fill();
+    });
+    for(let i=0;i<pts.length;i++){
+        for(let j=i+1;j<pts.length;j++){
+            const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
+            const d=Math.sqrt(dx*dx+dy*dy);
+            if(d<75){
+                ctx.beginPath();
+                ctx.moveTo(pts[i].x,pts[i].y);
+                ctx.lineTo(pts[j].x,pts[j].y);
+                ctx.strokeStyle=`rgba(59,130,246,${.07*(1-d/75)})`;
+                ctx.lineWidth=.5;
+                ctx.stroke();
             }
-
-            // 信号区
-            document.getElementById('signal-box').innerHTML = `
-                <h2>${data.price.name} (${data.price.symbol})</h2>
-                <h3>$${data.price.price.toLocaleString()}</h3>
-                <p>${data.price.change_24h > 0 ? '▲' : '▼'} ${data.price.change_24h.toFixed(2)}%</p>
-                <h2>Signal: ${data.signal.signal}</h2>
-                <p><strong>Confidence:</strong> ${data.signal.confidence}</p>
-                <p>${data.signal.reasoning}</p>
-            `;
-
-            // 历史回测区
-            document.getElementById('backtest-box').innerHTML = `
-                <h3>Historical Context (30 days)</h3>
-                <p>📈 Next-day win rate: <strong>${data.backtest.win_rate}%</strong></p>
-                <p>✅ Avg gain on up days: <strong>+${data.backtest.avg_gain}%</strong></p>
-                <p>❌ Avg loss on down days: <strong>${data.backtest.avg_loss}%</strong></p>
-                <p><em>${data.backtest.summary}</em></p>
-            `;
-
-            // 链上数据区
-            document.getElementById('onchain-box').innerHTML = `
-                <h3>Onchain Data</h3>
-                <p>🐋 Whale Activity: ${data.onchain.whale.large_txns} large transactions</p>
-                <p>💰 Exchange Flow: ${data.onchain.exchange_flow.description}</p>
-                <p>📊 USDT Supply: $${data.onchain.stablecoin.usdt_supply_billions}B (${data.onchain.stablecoin.signal})</p>
-                <p>${data.signal.onchain_summary}</p>
-            `;
-
-            // 新闻区
-            let newsHTML = '<h3>Latest News</h3>';
-            data.news.forEach(n => {
-                const shortDesc = n.description ? n.description.substring(0, 150) + '...' : '';
-                newsHTML += `
-                    <div style="margin-bottom:16px;">
-                        <span>${n.weight === 'high' ? '🔴' : n.weight === 'medium' ? '🟡' : '🟢'}</span>
-                        <a href="${n.url}" target="_blank"><strong>${n.title}</strong></a>
-                        <p style="margin-top:4px;">${shortDesc} <a href="${n.url}" target="_blank">Read more →</a></p>
-                    </div>
-                `;
-            });
-            document.getElementById('news-box').innerHTML = newsHTML;
-
-            document.getElementById('results').style.display = 'block';
         }
-    </script>
+    }
+    requestAnimationFrame(draw);
+}
 
+window.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
+window.addEventListener('resize',()=>{resize();initPts();});
+resize(); initPts(); draw();
+
+// HOT COINS
+async function loadHot(){
+    try{
+        const r=await fetch('/api/prices?coins=ethereum,bitcoin,solana');
+        const d=await r.json();
+        [['eth','ethereum'],['btc','bitcoin'],['sol','solana']].forEach(([k,coin])=>{
+            if(d[coin]){
+                document.getElementById(`${k}-price`).textContent='$'+d[coin].price.toLocaleString();
+                const el=document.getElementById(`${k}-change`);
+                const v=d[coin].change;
+                el.textContent=(v>=0?'+':'')+v.toFixed(2)+'%';
+                el.className='cc-change '+(v>=0?'up':'down');
+            }
+        });
+    }catch(e){}
+}
+loadHot();
+
+// INFINITY
+let infP=0, infId;
+function animInf(){
+    const path=document.getElementById('inf-path');
+    const dot=document.getElementById('inf-dot');
+    if(!path||!dot)return;
+    const len=path.getTotalLength();
+    const pt=path.getPointAtLength((infP%1)*len);
+    dot.setAttribute('cx',pt.x);
+    dot.setAttribute('cy',pt.y);
+    infP+=0.004;
+    infId=requestAnimationFrame(animInf);
+}
+
+// PROGRESS
+let progV=0, progInt;
+function startProg(){
+    progV=0;
+    progInt=setInterval(()=>{
+        progV+=Math.random()*3;
+        if(progV>90)progV=90;
+        document.getElementById('prog-fill').style.width=progV+'%';
+        document.getElementById('prog-pct').textContent=Math.floor(progV)+'%';
+    },300);
+}
+
+function doneProg(){
+    clearInterval(progInt);
+    document.getElementById('prog-fill').style.width='100%';
+    document.getElementById('prog-pct').textContent='100%';
+}
+
+// SYMBOL MAP
+const symMap={
+    bitcoin:'BINANCE%3ABTCUSDT',
+    ethereum:'BINANCE%3AETHUSDT',
+    solana:'BINANCE%3ASOLUSDT',
+    bnb:'BINANCE%3ABNBUSDT',
+    binancecoin:'BINANCE%3ABNBUSDT',
+    xrp:'BINANCE%3AXRPUSDT',
+    ripple:'BINANCE%3AXRPUSDT',
+};
+
+// TOGGLE
+function toggleCol(id){
+    document.getElementById(id+'-body').classList.toggle('open');
+    document.getElementById(id+'-arr').classList.toggle('open');
+}
+
+function quickAnalyze(coin){
+    document.getElementById('coinInput').value=coin;
+    startAnalysis();
+}
+
+// MAIN ANALYZE
+async function startAnalysis(){
+    const coin=document.getElementById('coinInput').value.trim()||'ethereum';
+    document.getElementById('home-page').style.display='none';
+    document.getElementById('analysis-page').style.display='none';
+    const ld=document.getElementById('loading-page');
+    ld.style.display='flex';
+    animInf(); startProg();
+
+    const msgs=['ANALYZING ONCHAIN DATA','READING WHALE WALLETS','PROCESSING NEWS SIGNALS','RUNNING AI ANALYSIS'];
+    let mi=0;
+    const mInt=setInterval(()=>{
+        mi=(mi+1)%msgs.length;
+        document.getElementById('loading-text').textContent=msgs[mi];
+    },2500);
+
+    try{
+        const res=await fetch(`/api/analyze?coin=${coin}`);
+        const data=await res.json();
+        clearInterval(mInt); doneProg();
+        await new Promise(r=>setTimeout(r,600));
+
+        const sym=symMap[coin.toLowerCase()]||`BINANCE%3A${coin.toUpperCase()}USDT`;
+        document.getElementById('tv-chart').src=`https://s.tradingview.com/widgetembed/?symbol=${sym}&interval=D&theme=dark&style=1&locale=en`;
+
+        document.getElementById('a-name').textContent=data.price.name;
+        document.getElementById('a-sym').textContent=data.price.symbol;
+
+        const pp=document.getElementById('a-price');
+        pp.textContent='$'+data.price.price.toLocaleString();
+        const chv=data.price.change_24h;
+        pp.className='a-price '+(chv>=0?'up':'down');
+
+        const cb=document.getElementById('a-change');
+        cb.textContent=(chv>=0?'▲ +':'▼ ')+chv.toFixed(2)+'%';
+        cb.className='a-badge '+(chv>=0?'up':'down');
+
+        const sig=data.signal.signal.toLowerCase();
+        document.getElementById('sig-block').className='sig-block '+sig;
+        const sl=document.getElementById('a-signal');
+        sl.textContent=data.signal.signal;
+        sl.className='sig-label '+sig;
+        document.getElementById('a-conf').textContent='CONFIDENCE: '+data.signal.confidence;
+        document.getElementById('a-reasoning').textContent=data.signal.reasoning;
+
+        document.getElementById('bt-wr').textContent=data.backtest.win_rate+'%';
+        document.getElementById('bt-gain').textContent='+'+data.backtest.avg_gain+'%';
+        document.getElementById('bt-loss').textContent=data.backtest.avg_loss+'%';
+        document.getElementById('bt-sum').textContent=data.backtest.summary;
+
+        document.getElementById('oc-whale').textContent=`Whale Activity: ${data.onchain.whale.large_txns} large transactions`;
+        document.getElementById('oc-flow').textContent=`Exchange Flow: ${data.onchain.exchange_flow.description}`;
+        document.getElementById('oc-usdt').textContent=`USDT Supply: $${data.onchain.stablecoin.usdt_supply_billions}B (${data.onchain.stablecoin.signal})`;
+        document.getElementById('oc-ai').textContent=data.signal.onchain_summary;
+
+        let nwHTML='';
+        data.news.forEach(n=>{
+            const sd=n.description?n.description.substring(0,120)+'...':'';
+            nwHTML+=`<div class="nw-item"><div class="nw-dot ${n.weight}"></div><div><a class="nw-link" href="${n.url}" target="_blank">${n.title}</a><div class="nw-desc">${sd} <a class="nw-more" href="${n.url}" target="_blank">Read more →</a></div></div></div>`;
+        });
+        document.getElementById('nw-inner').innerHTML=nwHTML;
+
+        ['bt','oc','nw'].forEach(id=>{
+            document.getElementById(id+'-body').classList.add('open');
+            document.getElementById(id+'-arr').classList.add('open');
+        });
+
+        cancelAnimationFrame(infId);
+        ld.style.display='none';
+        const ap=document.getElementById('analysis-page');
+        ap.style.display='block';
+        ap.classList.add('fade-in');
+        window.scrollTo({top:0,behavior:'smooth'});
+
+    }catch(e){
+        clearInterval(mInt);
+        cancelAnimationFrame(infId);
+        document.getElementById('loading-page').style.display='none';
+        document.getElementById('home-page').style.display='flex';
+        alert('Analysis failed. Please try again.');
+    }
+}
+
+document.getElementById('coinInput').addEventListener('keydown',e=>{
+    if(e.key==='Enter')startAnalysis();
+});
+</script>
 </body>
 </html>

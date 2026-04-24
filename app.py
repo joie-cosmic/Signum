@@ -17,6 +17,20 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
+@app.route('/api/prices', methods=['GET'])
+def get_prices():
+    """Quick price fetch for hot coins on homepage."""
+    coins = request.args.get('coins', 'ethereum,bitcoin,solana').split(',')
+    result = {}
+    for coin in coins:
+        data = get_coin_data(coin.strip())
+        if data:
+            result[coin.strip()] = {
+                'price': data['price'],
+                'change': data['change_24h']
+            }
+    return jsonify(result)
+
 @app.route('/api/analyze', methods=['GET'])
 def analyze_coin():
     query = request.args.get('coin', 'ethereum')
@@ -31,7 +45,7 @@ def analyze_coin():
     if not price_data:
         return jsonify({'error': 'Failed to fetch price data'}), 500
 
-    # 并行调用剩余所有API
+    # 并行调用所有API
     with concurrent.futures.ThreadPoolExecutor() as executor:
         future_news = executor.submit(get_news, price_data['symbol'])
         future_whale = executor.submit(get_whale_activity, coin_id)
@@ -64,7 +78,7 @@ def analyze_coin():
             'exchange_flow': exchange_flow,
             'stablecoin': stablecoin_data
         },
-        'backtest': backtest_data,  # 历史回测数据
+        'backtest': backtest_data,
         'signal': ai_result
     })
 
