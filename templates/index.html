@@ -27,6 +27,7 @@
     <!-- 结果区域 -->
     <div id="results" style="display:none">
         <div id="signal-box"></div>
+        <div id="backtest-box"></div>
         <div id="onchain-box"></div>
         <div id="news-box"></div>
     </div>
@@ -66,7 +67,17 @@
                 <h3>$${data.price.price.toLocaleString()}</h3>
                 <p>${data.price.change_24h > 0 ? '▲' : '▼'} ${data.price.change_24h.toFixed(2)}%</p>
                 <h2>Signal: ${data.signal.signal}</h2>
+                <p><strong>Confidence:</strong> ${data.signal.confidence}</p>
                 <p>${data.signal.reasoning}</p>
+            `;
+
+            // 历史回测区
+            document.getElementById('backtest-box').innerHTML = `
+                <h3>Historical Context (30 days)</h3>
+                <p>📈 Next-day win rate: <strong>${data.backtest.win_rate}%</strong></p>
+                <p>✅ Avg gain on up days: <strong>+${data.backtest.avg_gain}%</strong></p>
+                <p>❌ Avg loss on down days: <strong>${data.backtest.avg_loss}%</strong></p>
+                <p><em>${data.backtest.summary}</em></p>
             `;
 
             // 链上数据区

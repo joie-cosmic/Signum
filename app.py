@@ -7,6 +7,7 @@ from services.price import get_coin_data, search_coin
 from services.news import get_news
 from services.onchain import get_whale_activity, get_exchange_flow, get_stablecoin_flow
 from services.ai import analyze
+from services.backtest import calculate_backtest
 
 load_dotenv()
 
@@ -30,19 +31,21 @@ def analyze_coin():
     if not price_data:
         return jsonify({'error': 'Failed to fetch price data'}), 500
 
-    # 并行调用剩余三个API
+    # 并行调用剩余所有API
     with concurrent.futures.ThreadPoolExecutor() as executor:
         future_news = executor.submit(get_news, price_data['symbol'])
         future_whale = executor.submit(get_whale_activity, coin_id)
         future_exchange = executor.submit(get_exchange_flow, coin_id)
         future_stablecoin = executor.submit(get_stablecoin_flow)
+        future_backtest = executor.submit(calculate_backtest, coin_id)
 
         news_list = future_news.result()
         whale_data = future_whale.result()
         exchange_flow = future_exchange.result()
         stablecoin_data = future_stablecoin.result()
+        backtest_data = future_backtest.result()
 
-    # AI分析
+    # AI综合分析
     ai_result = analyze(
         coin_name=price_data['name'],
         coin_symbol=price_data['symbol'],
@@ -61,6 +64,7 @@ def analyze_coin():
             'exchange_flow': exchange_flow,
             'stablecoin': stablecoin_data
         },
+        'backtest': backtest_data,  # 历史回测数据
         'signal': ai_result
     })
 
