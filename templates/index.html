@@ -338,7 +338,7 @@
 
         .a-header {
             display: flex;
-            align-items: baseline;
+            align-items: flex-end;
             gap: 16px;
             margin-bottom: 4px;
             flex-wrap: wrap;
@@ -354,14 +354,15 @@
 
         .a-sym {
             font-family: 'Barlow Condensed', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 15px;
+            font-weight: 700;
             letter-spacing: 0.2em;
-            color: var(--blue-bright);
-            background: rgba(37,99,235,0.12);
-            border: 1px solid rgba(59,130,246,0.25);
-            padding: 4px 12px;
-            border-radius: 4px;
+            color: #ffffff;
+            background: rgba(59,130,246,0.5);
+            border: 1.5px solid rgba(59,130,246,0.8);
+            padding: 6px 16px;
+            border-radius: 6px;
+            margin-bottom: 6px;
         }
 
         .a-price-row {
@@ -378,8 +379,8 @@
             letter-spacing: 0.02em;
         }
 
-        .a-price.up { color: var(--bull); }
-        .a-price.down { color: var(--bear); }
+        .a-price.up { color: #34d399; text-shadow: 0 0 20px rgba(52,211,153,0.8), 0 2px 8px rgba(0,0,0,0.8); }
+        .a-price.down { color: #f87171; text-shadow: 0 0 20px rgba(248,113,113,0.8), 0 2px 8px rgba(0,0,0,0.8); }
         .a-price.neutral { color: var(--text-bright); }
 
         .a-badge {
@@ -391,8 +392,8 @@
             border-radius: 4px;
         }
 
-        .a-badge.up { color: var(--bull); background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); }
-        .a-badge.down { color: var(--bear); background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); }
+        .a-badge.up { color: #34d399; background: transparent; border: none; padding: 5px 14px; font-size:15px; font-weight:700; text-shadow: 0 0 20px rgba(52,211,153,0.8), 0 2px 8px rgba(0,0,0,0.8); }
+        .a-badge.down { color: #f87171; background: transparent; border: none; padding: 5px 14px; font-size:15px; font-weight:700; text-shadow: 0 0 20px rgba(248,113,113,0.8), 0 2px 8px rgba(0,0,0,0.8); }
 
         .chart-box {
             border: 1.5px solid rgba(74,130,246,0.45);
@@ -477,7 +478,7 @@
         }
 
         .col-head {
-            padding: 14px 18px;
+            padding: 18px 22px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -491,16 +492,17 @@
 
         .col-title {
             font-family: 'Barlow Condensed', sans-serif;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.2em;
-            color: var(--text-dim);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.25em;
+            color: rgba(255,255,255,0.85);
         }
 
         .col-arr {
-            font-size: 9px;
-            color: var(--text-dim);
-            transition: transform 0.3s;
+            font-size: 16px;
+            color: rgba(255,255,255,0.5);
+            transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+            line-height: 1;
         }
 
         .col-arr.open { transform: rotate(180deg); }
@@ -508,63 +510,64 @@
         .col-body {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
+            transition: max-height 0.6s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease;
+            opacity: 0;
         }
 
-        .col-body.open { max-height: 700px; }
-        .col-inner { padding: 14px 18px; }
+        .col-body.open { max-height: 800px; opacity: 1; }
+        .col-inner { padding: 18px 22px; }
 
         /* metrics */
         .met-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            font-size: 13px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            font-size: 14px;
         }
 
         .met-row:last-of-type { border: none; }
-        .met-l { color: var(--text-dim); font-weight: 300; }
-        .met-v { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 600; }
-        .met-v.up { color: var(--bull); }
-        .met-v.down { color: var(--bear); }
+        .met-l { color: rgba(200,215,240,0.6); font-weight: 400; font-size: 13px; }
+        .met-v { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; }
+        .met-v.up { color: #34d399; text-shadow: 0 0 12px rgba(52,211,153,0.5); }
+        .met-v.down { color: #f87171; text-shadow: 0 0 12px rgba(248,113,113,0.5); }
         .met-v.neu { color: var(--text-bright); }
 
         .bt-summary {
-            margin-top: 10px;
-            font-size: 12px;
-            font-weight: 300;
-            color: var(--text-dim);
-            line-height: 1.7;
+            margin-top: 14px;
+            font-size: 13px;
+            font-weight: 400;
+            color: rgba(200,215,240,0.55);
+            line-height: 1.8;
             font-style: italic;
         }
 
         /* onchain */
         .oc-row {
             display: flex;
-            gap: 10px;
-            padding: 9px 6px;
+            gap: 12px;
+            padding: 12px 8px;
             border-radius: 6px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            font-size: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            font-size: 13px;
             transition: background 0.2s;
             cursor: default;
         }
 
         .oc-row:hover { background: rgba(255,255,255,0.03); }
         .oc-row:last-of-type { border: none; }
-        .oc-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-        .oc-text { color: rgba(180,200,240,0.65); line-height: 1.6; font-weight: 300; }
-        .oc-ai { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 11px; font-weight: 300; color: var(--text-dim); line-height: 1.7; font-style: italic; }
+        .oc-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+        .oc-text { color: rgba(200,220,255,0.75); line-height: 1.7; font-weight: 400; font-size: 13px; }
+        .oc-ai { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 12px; font-weight: 400; color: rgba(180,200,240,0.55); line-height: 1.8; font-style: italic; }
 
         /* news */
         .nw-item {
             display: flex;
-            gap: 10px;
-            padding: 9px 6px;
+            gap: 12px;
+            padding: 14px 8px;
             border-radius: 6px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
             transition: background 0.2s;
         }
 
@@ -572,35 +575,35 @@
         .nw-item:last-child { border: none; }
 
         .nw-dot {
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             margin-top: 5px;
             flex-shrink: 0;
         }
 
-        .nw-dot.high { background: var(--bear); box-shadow: 0 0 6px var(--bear); }
-        .nw-dot.medium { background: #f59e0b; box-shadow: 0 0 6px #f59e0b; }
-        .nw-dot.low { background: rgba(255,255,255,0.18); }
+        .nw-dot.high { background: var(--bear); box-shadow: 0 0 8px var(--bear); }
+        .nw-dot.medium { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+        .nw-dot.low { background: rgba(255,255,255,0.25); }
 
         .nw-link {
-            font-size: 12px;
-            font-weight: 400;
-            color: rgba(200,215,240,0.75);
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(220,230,255,0.85);
             text-decoration: none;
             display: block;
-            margin-bottom: 4px;
-            line-height: 1.5;
+            margin-bottom: 6px;
+            line-height: 1.6;
             transition: color 0.2s;
         }
 
         .nw-link:hover { color: var(--blue-bright); }
 
         .nw-desc {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 300;
-            color: var(--text-dim);
-            line-height: 1.6;
+            color: rgba(180,200,240,0.5);
+            line-height: 1.7;
         }
 
         .nw-more {
@@ -632,7 +635,7 @@
 <canvas id="particle-canvas"></canvas>
 
 <nav>
-    <div class="logo">SIG<span>NUM</span></div>
+    <div class="logo" onclick="goHome()" style="cursor:pointer;">SIG<span>NUM</span></div>
     <div class="nav-right">ONCHAIN INTELLIGENCE</div>
 </nav>
 
@@ -709,43 +712,34 @@
 
     <div class="three-cols">
         <div class="col-card">
-            <div class="col-head" onclick="toggleCol('bt')">
+            <div class="col-head">
                 <div class="col-title">HISTORICAL CONTEXT</div>
-                <div class="col-arr" id="bt-arr">▼</div>
             </div>
-            <div class="col-body" id="bt-body">
-                <div class="col-inner">
-                    <div class="met-row"><span class="met-l">30-day win rate</span><span class="met-v neu" id="bt-wr">—</span></div>
-                    <div class="met-row"><span class="met-l">Avg gain</span><span class="met-v up" id="bt-gain">—</span></div>
-                    <div class="met-row"><span class="met-l">Avg loss</span><span class="met-v down" id="bt-loss">—</span></div>
-                    <div class="bt-summary" id="bt-sum">—</div>
-                </div>
+            <div class="col-inner">
+                <div class="met-row"><span class="met-l">30-day win rate</span><span class="met-v neu" id="bt-wr">—</span></div>
+                <div class="met-row"><span class="met-l">Avg gain</span><span class="met-v up" id="bt-gain">—</span></div>
+                <div class="met-row"><span class="met-l">Avg loss</span><span class="met-v down" id="bt-loss">—</span></div>
+                <div class="bt-summary" id="bt-sum">—</div>
             </div>
         </div>
 
         <div class="col-card">
-            <div class="col-head" onclick="toggleCol('oc')">
+            <div class="col-head">
                 <div class="col-title">ONCHAIN DATA</div>
-                <div class="col-arr" id="oc-arr">▼</div>
             </div>
-            <div class="col-body" id="oc-body">
-                <div class="col-inner">
-                    <div class="oc-row"><span class="oc-icon">🐋</span><span class="oc-text" id="oc-whale">—</span></div>
-                    <div class="oc-row"><span class="oc-icon">💰</span><span class="oc-text" id="oc-flow">—</span></div>
-                    <div class="oc-row"><span class="oc-icon">📊</span><span class="oc-text" id="oc-usdt">—</span></div>
-                    <div class="oc-ai" id="oc-ai">—</div>
-                </div>
+            <div class="col-inner">
+                <div class="oc-row"><span class="oc-icon">🐋</span><span class="oc-text" id="oc-whale">—</span></div>
+                <div class="oc-row"><span class="oc-icon">💰</span><span class="oc-text" id="oc-flow">—</span></div>
+                <div class="oc-row"><span class="oc-icon">📊</span><span class="oc-text" id="oc-usdt">—</span></div>
+                <div class="oc-ai" id="oc-ai">—</div>
             </div>
         </div>
 
         <div class="col-card">
-            <div class="col-head" onclick="toggleCol('nw')">
+            <div class="col-head">
                 <div class="col-title">LATEST NEWS</div>
-                <div class="col-arr" id="nw-arr">▼</div>
             </div>
-            <div class="col-body" id="nw-body">
-                <div class="col-inner" id="nw-inner">—</div>
-            </div>
+            <div class="col-inner" id="nw-inner">—</div>
         </div>
     </div>
 </div>
@@ -867,10 +861,14 @@ const symMap={
     ripple:'BINANCE%3AXRPUSDT',
 };
 
-// TOGGLE
+// TOGGLE - only toggle clicked card, hide/show preview
 function toggleCol(id){
-    document.getElementById(id+'-body').classList.toggle('open');
-    document.getElementById(id+'-arr').classList.toggle('open');
+    const body = document.getElementById(id+'-body');
+    const arr = document.getElementById(id+'-arr');
+    const card = document.getElementById(id+'-card');
+    body.classList.toggle('open');
+    arr.classList.toggle('open');
+    card.classList.toggle('open');
 }
 
 function quickAnalyze(coin){
@@ -940,10 +938,7 @@ async function startAnalysis(){
         });
         document.getElementById('nw-inner').innerHTML=nwHTML;
 
-        ['bt','oc','nw'].forEach(id=>{
-            document.getElementById(id+'-body').classList.add('open');
-            document.getElementById(id+'-arr').classList.add('open');
-        });
+
 
         cancelAnimationFrame(infId);
         ld.style.display='none';
@@ -959,6 +954,14 @@ async function startAnalysis(){
         document.getElementById('home-page').style.display='flex';
         alert('Analysis failed. Please try again.');
     }
+}
+
+// GO HOME
+function goHome(){
+    document.getElementById('analysis-page').style.display='none';
+    document.getElementById('loading-page').style.display='none';
+    document.getElementById('home-page').style.display='flex';
+    window.scrollTo({top:0,behavior:'smooth'});
 }
 
 document.getElementById('coinInput').addEventListener('keydown',e=>{
