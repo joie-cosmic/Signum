@@ -636,7 +636,10 @@
 
 <nav>
     <div class="logo" onclick="goHome()" style="cursor:pointer;">SIG<span>NUM</span></div>
-    <div class="nav-right">ONCHAIN INTELLIGENCE</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+        <input class="search-input" id="navInput" type="text" placeholder="Search coin..." style="width:200px;padding:8px 16px;font-size:13px;" onkeydown="if(event.key==='Enter'){document.getElementById('coinInput').value=this.value;startAnalysis();}">
+        <button class="btn-analyze" onclick="document.getElementById('coinInput').value=document.getElementById('navInput').value;startAnalysis();" style="padding:8px 20px;font-size:12px;letter-spacing:0.1em;">GO</button>
+    </div>
 </nav>
 
 <!-- HOME -->
